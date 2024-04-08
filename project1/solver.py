@@ -53,6 +53,11 @@ def solve_ivp(func, t_span, y0, method, t_eval, args):
     #
     # TODO:
     #
+    sol[:,0] = y0
+    for i in range(len(t_eval)):
+        if i > 0:
+            dt = t_eval[i]-t_eval[i-1]
+            sol[:,i] = _update(func,sol[:,i-1],dt,t_eval[i],method,*args)
 
     return sol
 
@@ -94,7 +99,9 @@ def _update_euler(derive_func,y0,dt,t,*args):
     # TODO:
     #
 
-    return y0 # <- change here. just a placeholder
+    y = y0+derive_func(t,y0,*args)*dt
+
+    return y # <- change here. just a placeholder
 
 def _update_rk2(derive_func,y0,dt,t,*args):
     """
@@ -107,7 +114,11 @@ def _update_rk2(derive_func,y0,dt,t,*args):
     # TODO:
     #
 
-    return y0 # <- change here. just a placeholder
+    k1 = derive_func(t,y0,*args)
+    k2 = derive_func(t+dt,y0+k1*dt,*args)
+    y = y0+(k1+k2)/2*dt
+
+    return y # <- change here. just a placeholder
 
 def _update_rk4(derive_func,y0,dt,t,*args):
     """
@@ -120,7 +131,13 @@ def _update_rk4(derive_func,y0,dt,t,*args):
     # TODO:
     #
 
-    return y0 # <- change here. just a placeholder
+    k1 = derive_func(t,y0,*args)
+    k2 = derive_func(t+dt/2,y0+k1*dt/2,*args)
+    k3 = derive_func(t+dt/2,y0+k2*dt/2,*args)
+    k4 = derive_func(t+dt,y0+k3*dt,*args)
+    y = y0+(k1+2*k2+2*k3+k4)*dt/6
+
+    return y # <- change here. just a placeholder
 
 if __name__=='__main__':
 
@@ -155,18 +172,19 @@ if __name__=='__main__':
         #
         # TODO:
         #
- 
-        return y # <- change here. just a placeholder
+        omega0 = np.sqrt(K/M)
+        yderive = np.array([y[1],-omega0**2*y[0]])
+
+        return yderive # <- change here. just a placeholder
 
     t_span = (0, 10)
     y0     = np.array([1,0])
-    t_eval = np.linspace(0,1,100)
+    t_eval = np.linspace(0,10,100)
 
     K = 1
     M = 1
 
-    sol = solve_ivp(oscillator, t_span, y0, 
-                    method="Euler",t_eval=t_eval, args=(K,M))
+    sol = solve_ivp(oscillator, t_span, y0,method="Euler",t_eval=t_eval,args=(K,M))
 
     print("sol=",sol[0])
     print("Done!")
