@@ -17,8 +17,13 @@ class Particles:
         return
     
     def output(self,filename):
-        header = "# tags,masses,x,y,z,vx,vy,vz,ax,ay,az"
-        np.savetxt(filename,np.hstack((self._tags.reshape((self.nparticles,1)),self.masses,self.positions,self.velocities,self.accelerations)),header=header)
+        header = "# masses,tags,x,y,z,vx,vy,vz,ax,ay,az"
+        np.savetxt(filename,np.hstack((self._masses,
+                                       self._tags.reshape(-1,1),
+                                       self._positions,
+                                       self._velocities,
+                                       self._accelerations)),
+                                       delimiter=",",header=header)
         return
 
     def draw(self,dim,pov = None):
@@ -41,6 +46,7 @@ class Particles:
             ax.scatter(self._positions[:,0],self._positions[:,1],self._positions[:,2])
         else:
             print('Input is not valid.')
+        return
 
     @property
     def tags(self):
